@@ -37,23 +37,23 @@ startmasternode alias 0 MN1
 ```
 14. Login to your VPS and check your masternode status by running the following command to confirm your MN is running:
 ```
-Duelium-cli masternode status
+DUELIUM-cli masternode status
 ```
 ***
 
 ## Usage:
 ```
-Duelium-cli masternode status #To check your MN status
-Duelium-cli getinfo #To get general info such as Nodium version and current block numnber
-Duelium-cli mnsync status #To check if your MN is synced.
+DUELIUM-cli masternode status #To check your MN status
+DUELIUM-cli getinfo #To get general info such as Nodium version and current block numnber
+DUELIUM-cli mnsync status #To check if your MN is synced.
 ```
-Also, if you want to check/start/stop **Duelium**, run one of the following commands as **root**:
+Also, if you want to check/start/stop **DUELIUM**, run one of the following commands as **root**:
 
 ```
-systemctl status Duelium #To check if Duelium service is running
-systemctl start Duelium #To start Duelium service
-systemctl stop Duelium #To stop Duelium service
-systemctl is-enabled Duelium #To check if Duelium service is enabled on boot
+systemctl status DUELIUM #To check if Duelium service is running
+systemctl start DUELIUM #To start Duelium service
+systemctl stop DUELIUM #To stop Duelium service
+systemctl is-enabled DUELIUM #To check if Duelium service is enabled on boot
 ```
 ***
 
