@@ -1,8 +1,3 @@
-# Script
-Test Script for Simple MN Setup
-(All credit to Mr. Zoldur)
-
-
 # DUELIUM
 Shell script to install a [Duelium Masternode](http://www.duelium.com/) on a Linux server running Ubuntu 16.04.
 ***
