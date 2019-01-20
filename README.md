@@ -44,7 +44,7 @@ DUELIUM-cli masternode status
 ## Usage:
 ```
 DUELIUM-cli masternode status #To check your MN status
-DUELIUM-cli getinfo #To get general info such as Nodium version and current block numnber
+DUELIUM-cli getinfo #To get general info such as client version and current block number
 DUELIUM-cli mnsync status #To check if your MN is synced.
 ```
 Also, if you want to check/start/stop **DUELIUM**, run one of the following commands as **root**:
@@ -59,9 +59,9 @@ systemctl is-enabled DUELIUM #To check if Duelium service is enabled on boot
 
 
 
-## Donations (Mr. Zoldur's wallet accounts, not mine)
-Any donation is highly appreciated
-
+## Donations to original source developer: Mr. Zoldur
+Any donation is highly appreciated 
+(These are Mr. Zoldur's wallet addresses, not mine)
 **BTC**: 3MQLEcHXVvxpmwbB811qiC1c6g21ZKa7Jh  
 **ETH**: 0x26B9dDa0616FE0759273D651e77Fe7dd7751E01E  
 **LTC**: LNZpK4rCd1JVSB3rGKTAnTkudV9So9zexB  
