@@ -52,10 +52,8 @@ function update_node() {
 function download_node() {
   echo -e "Prepare to download ${GREEN}$COIN_NAME${NC}."
   cd $COIN_PATH >/dev/null 2>&1
-  wget -q $COIN_TGZ
-  tar xvzf $COIN_ZIP >/dev/null 2>&1
-  cd $COIN_ZIP
-  cp $COIN_DAEMON $COIN_CLI $COIN_PATH
+  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUM-cli
+  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUMd
   cd - >/dev/null 2>&1
   clear
 }
@@ -150,6 +148,14 @@ logintimestamps=1
 masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
+
+addnode=45.76.69.125
+addnode=149.248.11.9
+addnode=149.28.66.139
+addnode=149.248.3.47
+addnode=8.6.8.198
+addnode=45.77.70.228
+addnode=207.246.107.235
 
 #Nodes
 EOF
