@@ -11,6 +11,7 @@ COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
 COIN_NAME='DUELIUM'
 COIN_PORT=9888
 RPC_PORT=9889
+LATEST_VERSION=2000001
 
 NODEIP=$(curl -s4 api.ipify.org)
 
@@ -20,12 +21,41 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 
+function update_node() {
+  echo -e "Checking if ${RED}$COIN_NAME${NC} is already installed and running the lastest version."
+  systemctl daemon-reload
+  sleep 3
+  systemctl start $COIN_NAME.service >/dev/null 2>&1
+  apt -y install jq >/dev/null 2>&1
+  VERSION=$($COIN_PATH$COIN_CLI getinfo 2>/dev/null| jq .version)
+  if [[ "$VERSION" -eq "$LATEST_VERSION" ]]
+  then
+    echo -e "${RED}$COIN_NAME is already installed and running the lastest version.${NC}"
+    exit 0
+  elif [[ -z "$VERSION" ]]
+  then
+    echo "Continue with the normal installation"
+  elif [[ "$VERSION" -ne "$LATEST_VERSION" ]]
+  then
+    systemctl stop $COIN_NAME.service >/dev/null 2>&1
+    $COIN_PATH$COIN_CLI stop >/dev/null 2>&1
+    sleep 10 >/dev/null 2>&1
+    rm $COIN_PATH$COIN_DAEMON $COIN_PATH$COIN_CLI >/dev/null 2>&1
+    rm -r $CONFIGFOLDER/{backups,blocks,budget.dat,chainstate,database,db.log,fee_estimates.dat,mncache.dat,mnpayments.dat,peers.dat,sporks,zerocoin} >/dev/null 2>&1
+    download_node
+    configure_systemd
+    echo -e "${RED}$COIN_NAME updated to the latest version!${NC}"
+    exit 0
+  fi
+}
+
 function download_node() {
-  echo -e "Preparing to download ${GREEN}$COIN_NAME${NC}."
+  echo -e "Prepare to download ${GREEN}$COIN_NAME${NC}."
   cd $TMP_FOLDER >/dev/null 2>&1
   wget -q $COIN_TGZ
   compile_error
-  tar xvzf $COIN_ZIP -C $COIN_PATH >/dev/null 2>&1
+  tar xvzf $COIN_ZIP >/dev/null 2>&1
+  cp $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd - >/dev/null 2>&1
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   clear
@@ -94,21 +124,21 @@ function create_key() {
   echo -e "Enter your ${RED}$COIN_NAME Masternode Private Key${NC}. Leave it blank to generate a new ${RED}Masternode Private Key${NC} for you:"
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
-  $COIN_PATH$COIN_DAEMON -daemon
-  sleep 30
-  if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
-   echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
-   exit 1
-  fi
-  COINKEY=$($COIN_PATH$COIN_CLI masternode genkey)
-  if [ "$?" -gt "0" ];
-    then
-    echo -e "${RED}Wallet not fully loaded. Let us wait and try again to generate the Private Key${NC}"
+    $COIN_PATH$COIN_DAEMON -daemon
     sleep 30
+    if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
+      echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
+      exit 1
+    fi
     COINKEY=$($COIN_PATH$COIN_CLI masternode genkey)
-  fi
+    if [ "$?" -gt "0" ];
+      then
+      echo -e "${RED}Wallet not fully loaded. Let us wait and try again to generate the Private Key${NC}"
+      sleep 30
+      COINKEY=$($COIN_PATH$COIN_CLI masternode genkey)
+    fi
   $COIN_PATH$COIN_CLI stop
-fi
+  fi
 clear
 }
 
@@ -116,20 +146,13 @@ function update_config() {
   sed -i 's/daemon=1/daemon=0/' $CONFIGFOLDER/$CONFIG_FILE
   cat << EOF >> $CONFIGFOLDER/$CONFIG_FILE
 logintimestamps=1
-maxconnections=256
+#maxconnections=16
 #bind=$NODEIP
-txindex=1
-listenonion=0
 masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
-addnode=45.76.69.125
-addnode=149.248.11.9
-addnode=149.28.66.139
-addnode=149.248.3.47
-addnode=8.6.8.198
-addnode=45.77.70.228
-addnode=207.246.107.235
+
+#Nodes
 EOF
 }
 
@@ -187,15 +210,11 @@ if [[ $EUID -ne 0 ]]; then
    echo -e "${RED}$0 must be run as root.${NC}"
    exit 1
 fi
-
-if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
-  echo -e "${RED}$COIN_NAME is already installed.${NC}"
-  exit 1
-fi
 }
 
 function prepare_system() {
-echo -e "Prepare the system to install ${GREEN}$COIN_NAME${NC} master node."
+echo -e "Preparing the system to install ${GREEN}$COIN_NAME${NC} master node."
+echo -e "This might take up to 15 minutes and the screen will not move, so please be patient."
 apt-get update >/dev/null 2>&1
 DEBIAN_FRONTEND=noninteractive apt-get update > /dev/null 2>&1
 DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y -qq upgrade >/dev/null 2>&1
@@ -207,7 +226,7 @@ apt-get update >/dev/null 2>&1
 apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" make software-properties-common \
 build-essential libtool autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev libboost-program-options-dev \
 libboost-system-dev libboost-test-dev libboost-thread-dev sudo automake git wget curl libdb4.8-dev bsdmainutils libdb4.8++-dev \
-libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev  libdb5.3++ unzip libzmq5 >/dev/null 2>&1
+libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev  libdb5.3++ unzip libzmq5 jq >/dev/null 2>&1
 if [ "$?" -gt "0" ];
   then
     echo -e "${RED}Not all required packages were installed properly. Try to install them manually by running the following commands:${NC}\n"
@@ -217,7 +236,7 @@ if [ "$?" -gt "0" ];
     echo "apt-get update"
     echo "apt install -y make build-essential libtool software-properties-common autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev \
 libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thread-dev sudo automake git curl libdb4.8-dev \
-bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
+bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5 jq"
  exit 1
 fi
 clear
@@ -255,6 +274,7 @@ function setup_node() {
 clear
 
 checks
+update_node
 prepare_system
 download_node
 setup_node
