@@ -54,6 +54,7 @@ function download_node() {
   cd $COIN_PATH >/dev/null 2>&1
   wget -q $COIN_TGZ
   tar xvzf $COIN_ZIP >/dev/null 2>&1
+  cd $COIN_ZIP
   cp $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd - >/dev/null 2>&1
   clear
