@@ -54,6 +54,8 @@ function download_node() {
   cd $COIN_PATH >/dev/null 2>&1
   wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUM-cli
   wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUMd
+  chmod 755 ./DUELIUM-cli >/dev/null 2>&1
+  chmod 755 ./DUELIUMd >/dev/null 2>&1
   cd - >/dev/null 2>&1
   clear
 }
