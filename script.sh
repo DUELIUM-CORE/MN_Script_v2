@@ -6,7 +6,7 @@ CONFIGFOLDER='/root/.DUELIUM'
 COIN_DAEMON='DUELIUMd'
 COIN_CLI='DUELIUM-cli'
 COIN_PATH='/usr/local/bin/'
-COIN_TGZ='https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DL_Linux.tar.gz'
+COIN_TGZ='https://github.com/DUELIUM-CORE/DUELIUM/releases/download/v2.0.0.1/DL_Linux.tar.gz'
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
 COIN_NAME='DUELIUM'
 COIN_PORT=9888
@@ -52,8 +52,8 @@ function update_node() {
 function download_node() {
   echo -e "Prepare to download ${GREEN}$COIN_NAME${NC}."
   cd $COIN_PATH >/dev/null 2>&1
-  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUM-cli
-  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/2.0.0.1/DUELIUMd
+  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/v2.0.0.1/DUELIUM-cli
+  wget -q https://github.com/DUELIUM-CORE/DUELIUM/releases/download/v2.0.0.1/DUELIUMd
   chmod 755 ./DUELIUM-cli >/dev/null 2>&1
   chmod 755 ./DUELIUMd >/dev/null 2>&1
   cd - >/dev/null 2>&1
@@ -151,13 +151,10 @@ masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
 
-addnode=45.76.69.125
-addnode=149.248.11.9
-addnode=149.28.66.139
-addnode=149.248.3.47
-addnode=8.6.8.198
-addnode=45.77.70.228
-addnode=207.246.107.235
+addnode=149.248.1.96
+addnode=45.63.60.176
+addnode=45.76.76.136
+
 
 #Nodes
 EOF
